@@ -1,5 +1,5 @@
 # Bulk file renaming in Vim
-%% w/changes by charmsword
+__%% w/changes by charmsword__
 
 Bulk renaming files can be annoying and time consuming.
 This simple tool allows you to use Vim's powerful editing commands to make this task easier.
@@ -7,11 +7,12 @@ This simple tool allows you to use Vim's powerful editing commands to make this 
 ## Requirements
 
 Any POSIX operating system with Vim and Bash should work.
-%% MacOsX as well (Yosemite 10.10.4 tested)
+
+__%% MacOsX as well for this version (Yosemite 10.10.4 tested)__
 
 ## Installation
 
-Simply put the file `vrf` somewhere in your path and make sure it is executable.
+Simply put the file __`vrf`__ somewhere in your path and make sure it is executable.
 
 ## Usage
 
