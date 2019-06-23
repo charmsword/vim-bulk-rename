@@ -1,4 +1,5 @@
 # Bulk file renaming in Vim
+%% w/changes by charmsword
 
 Bulk renaming files can be annoying and time consuming.
 This simple tool allows you to use Vim's powerful editing commands to make this task easier.
@@ -6,14 +7,15 @@ This simple tool allows you to use Vim's powerful editing commands to make this 
 ## Requirements
 
 Any POSIX operating system with Vim and Bash should work.
+%% MacOsX as well (Yosemite 10.10.4 tested)
 
 ## Installation
 
-Simply put the file `vr` somewhere in your path and make sure it is executable.
+Simply put the file `vrf` somewhere in your path and make sure it is executable.
 
 ## Usage
 
-Usage: vr [FOLDER]
+Usage: vrf [FOLDER]
 
 Open a list of filenames from FOLDER in Vim for mass renaming.
 When FOLDER is not given the current directory is used.
@@ -29,5 +31,5 @@ deleted.
 
 ## Collaboration
 
-While fully operational this is just a very basic version of what is possible
-using this concept. Feel free to create a pull request or request a feature.
+%% This is a fork of original vr script by Hans Maree (snah)
+%% Feel free to fork and modify further!
