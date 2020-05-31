@@ -3,7 +3,7 @@ __%% w/changes by charmsword__
 Bulk renaming files can be annoying and time consuming.
 This simple tool allows you to use Vim's powerful editing commands to make this task easier.
 
-__Be warned:__ filenames with doublequotes (") will scrumble script, particalary the `mv` command;
+__Be warned:__ filenames with doublequotes (") will scrumble script, particulary the `mv` command;
 
 so you have two ways: __1)__ change all doublequotes inside vim to something you prefer, or __2)__ use script with argument: `vrf -c`, it will automatically replace all doublequotes with singlequotes 
 
