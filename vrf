@@ -1,7 +1,8 @@
 #! /bin/bash
 
-### SEEMS TO BE WORKING OK IN MACOSX
-### by charmsword
+### WORKS FINE ON MACOSX 10.10.5 Yosemite
+### original script by [snah](https://github.com/snah/vim-bulk-rename)
+### changes by charmsword
 
 function help
 {
@@ -20,22 +21,34 @@ function help
 	echo "deleted."
 }
 
+# function clear2
+# { 
+# 	Remove quotes and double-quotes from filenames
+# 	for file in .\*; do mv "$file" "${file//[^-_[:alnum:]\.[:space:][ЁёА-я]]/}"; done
+# 	for file in .\*; do mv "$file" "${file//[^A-Za-z0-9._-[ЁёА-я]]/}"; done
+# 	for file in *; do mv "$file" "${file//[^A-Za-z0-9\._\-\'ЁёА-я[\][:space:]]/}"; done
+# 	for file in *; do mv $file ${file//\"/'}; done
+# 	for file in *; do echo $file $(echo "$file" | sed -e 's/\"/\'/g'); done
+# }
+
+#  :::! WARNING, PAY ATTENTION !:::
+# Change DOUBLE-QUOTES in filenames to SINGLE QUOTES (so that they wouldn't break MOVE commands)
+function clear
+{
+	for file in *; do mv "$file" "$(echo $file | sed -e "s/\"/\'/g")"; done
+}
+
 if [ "$1" == "--help" -o "$1" == '-h' ]
 then
 	help
 	exit
 fi
 
-# Remove quotes and double-quotes from filenames
-# for file in .\*; do mv "$file" "${file//[^-_[:alnum:]\.[:space:][ЁёА-я]]/}"; done
-# for file in .\*; do mv "$file" "${file//[^A-Za-z0-9._-[ЁёА-я]]/}"; done
-# for file in *; do mv "$file" "${file//[^A-Za-z0-9\._\-\'ЁёА-я[\][:space:]]/}"; done
-# for file in *; do mv $file ${file//\"/'}; done
-# for file in *; do echo $file $(echo "$file" | sed -e 's/\"/\'/g'); done
 
-#  :::! WARNING, PAY ATTENTION !:::
-# Change DOUBLE-QUOTES in filenames to SINGLE QUOTES (so that they wouldn't break MOVE commands)
-#for file in *; do mv "$file" "$(echo $file | sed -e "s/\"/\'/g")"; done
+if [ "$1" == "--clear" -o "$1" == '-c' ]
+then
+	clear
+fi
 
 # Temporary files
 ORIG_NAMES='/tmp/orig_names'
@@ -45,7 +58,8 @@ touch "$COMMANDS"
 chmod 700 "$COMMANDS"	# For security, so noone can make us execute arbitrary commands
 
 # Create a list of filenames
-#find . -iname "*$1*" | sed 's/.*\///' > "$ORIG_NAMES"
+# maybe later I will implement another version of vrf with `find` command... but not today
+# find . -iname "*$1*" | sed 's/.*\///' > "$ORIG_NAMES"
 \ls > "$ORIG_NAMES"
 
 cp "$ORIG_NAMES" "$NEW_NAMES"
@@ -73,12 +87,12 @@ sed -i '' -e 's/$/"/' "$NEW_NAMES"
 # Create the commands to rename or delete files
 # paste with delim. " " orig and new names
 paste -d ' ' "$ORIG_NAMES" "$NEW_NAMES" | \
-	# add "mv ", escaping brackets and commas with backslashes
+# add "mv ", escaping brackets and commas with backslashes
 	sed 's/^/mv /' | sed 's/(/\(/' | sed 's/)/\)/' | sed 's/,/\,/' | \
-	# grepping ONLY those lines, where original and new names do not match
+# grepping ONLY those lines, where original and new names do not match
        	egrep -v 'mv (".*") \1' |  \
-#	sed 's/mv \("[^"]*"\) "\s*"*$/rm -rf \1/' > "$COMMANDS" # creating a REMOVE command for occurences, where NEW_NAME is NULL
-	# creating a TRASH command for occurences, where NEW_NAME is NULL
+# sed 's/mv \("[^"]*"\) "\s*"*$/rm -rf \1/' > "$COMMANDS" # creating a REMOVE command for occurences, where NEW_NAME is NULL
+# creating a TRASH command for occurences, where NEW_NAME is NULL
 	sed 's/mv \("[^"]*"\) ""/trash \1/' > "$COMMANDS"
 
 # Exectute the commands
