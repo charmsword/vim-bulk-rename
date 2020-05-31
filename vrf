@@ -27,7 +27,15 @@ then
 fi
 
 # Remove quotes and double-quotes from filenames
-for file in *; do mv "$file" "${file//[^-_[:alnum:]\.[:space:][ЁёА-я]]/}"; done
+# for file in .\*; do mv "$file" "${file//[^-_[:alnum:]\.[:space:][ЁёА-я]]/}"; done
+# for file in .\*; do mv "$file" "${file//[^A-Za-z0-9._-[ЁёА-я]]/}"; done
+# for file in *; do mv "$file" "${file//[^A-Za-z0-9\._\-\'ЁёА-я[\][:space:]]/}"; done
+# for file in *; do mv $file ${file//\"/'}; done
+# for file in *; do echo $file $(echo "$file" | sed -e 's/\"/\'/g'); done
+
+#  :::! WARNING, PAY ATTENTION !:::
+# Change DOUBLE-QUOTES in filenames to SINGLE QUOTES (so that they wouldn't break MOVE commands)
+#for file in *; do mv "$file" "$(echo $file | sed -e "s/\"/\'/g")"; done
 
 # Temporary files
 ORIG_NAMES='/tmp/orig_names'
@@ -42,8 +50,9 @@ chmod 700 "$COMMANDS"	# For security, so noone can make us execute arbitrary com
 
 cp "$ORIG_NAMES" "$NEW_NAMES"
 
-# Allow the user to edit the filenames
-vim +1 -c "nnoremap dd ^D" "$NEW_NAMES"
+# Allow the user to remove files with dd command (it will leave an empty line) AND DIFF between ORIG NAMES and NEW NAMES, to see changes in progress
+#vim +1 -c "nnoremap dd ^D" "$NEW_NAMES"
+vim +1 -c "set foldlevel=9999 | cnoremap q qall | nnoremap dd ^D | autocmd TextChangedI,TextChanged * diffupdate" -d "$NEW_NAMES" "$ORIG_NAMES"
 
 # Check if the edited file has the correct number of lines
 if [ "$(wc -l < $ORIG_NAMES)" != "$(wc -l < "$NEW_NAMES")" ]
@@ -56,11 +65,21 @@ fi
 # Quote all filenames
 sed -i '' -e 's/^/"/' "$ORIG_NAMES"
 sed -i '' -e 's/$/"/' "$ORIG_NAMES"
+#sed -e 's/"/\\"/g' "$NEW_NAMES"
 sed -i '' -e 's/^/"/' "$NEW_NAMES"
 sed -i '' -e 's/$/"/' "$NEW_NAMES"
 
+
 # Create the commands to rename or delete files
-paste -d' ' "$ORIG_NAMES" "$NEW_NAMES" | sed 's/^/mv /' | sed 's/(/\(/' | sed 's/)/\)/' | egrep -v 'mv (".*") \1' | sed 's/mv \("[^"]*"\) "\s*"*$/rm -rf \1/' > "$COMMANDS"
+# paste with delim. " " orig and new names
+paste -d ' ' "$ORIG_NAMES" "$NEW_NAMES" | \
+	# add "mv ", escaping brackets and commas with backslashes
+	sed 's/^/mv /' | sed 's/(/\(/' | sed 's/)/\)/' | sed 's/,/\,/' | \
+	# grepping ONLY those lines, where original and new names do not match
+       	egrep -v 'mv (".*") \1' |  \
+#	sed 's/mv \("[^"]*"\) "\s*"*$/rm -rf \1/' > "$COMMANDS" # creating a REMOVE command for occurences, where NEW_NAME is NULL
+	# creating a TRASH command for occurences, where NEW_NAME is NULL
+	sed 's/mv \("[^"]*"\) ""/trash \1/' > "$COMMANDS"
 
 # Exectute the commands
 bash -x "$COMMANDS"
